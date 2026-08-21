@@ -13,35 +13,24 @@ import { energyToCameraKick, damp } from '../audio/audioMapping';
 /**
  * ConcertScene
  * ------------------------------------------------------------------
- * The full 3D stadium viewed from the back of the arena, looking at
- * the main stage. Composed of independently-reactive subsystems so
- * each can be tuned/replaced without touching the others:
- *   - StageLights: spotlights + moving-head pulse on bass
- *   - LaserRig: beat-driven laser sweeps above/around the stage
- *   - LedWall: mid-reactive color-cycling backdrop screen
- *   - CrowdParticles: treble-reactive "phone flashlight" points + fog
- *
- * `metricsRef` is a React ref (see useAudioAnalyzer) holding the latest
- * audio metrics — read every frame inside useFrame, never via props/state,
- * so audio reactivity stays at full frame rate with no re-render cost.
+ * Full stadium scale setup viewed from elevated back seats.
  */
 export default function ConcertScene({ metricsRef, sceneSettings, canvasRef, onCanvasReady }) {
   return (
     <Canvas
-      // R3F's <Canvas> does not forward a raw DOM ref; grab the real
-      // <canvas> element from the created gl context instead so
-      // ExportPanel/CanvasRecorder can call captureStream()/toBlob() on it.
       onCreated={(state) => {
         if (canvasRef) canvasRef.current = state.gl.domElement;
         onCanvasReady?.();
       }}
       dpr={[1, 2]}
       gl={{ antialias: true, preserveDrawingBuffer: true, alpha: false }}
-      camera={{ position: [0, 6, 26], fov: 55, near: 0.1, far: 300 }}
+      // Adjusted camera position and FOV for massive stadium scale
+      camera={{ position: [0, 18, 55], fov: 60, near: 0.1, far: 500 }}
       shadows
     >
       <color attach="background" args={['#020103']} />
-      <fog attach="fog" args={['#020103', 20, 90]} />
+      {/* Pushed fog boundaries back so stadium tiers stay visible */}
+      <fog attach="fog" args={['#020103', 40, 180]} />
 
       <PerformanceMonitor onDecline={() => sceneSettings?.onQualityDecline?.()} />
 
@@ -66,34 +55,31 @@ export default function ConcertScene({ metricsRef, sceneSettings, canvasRef, onC
 function SceneContents({ metricsRef, sceneSettings }) {
   return (
     <>
-      <ambientLight intensity={0.04} color="#301040" />
+      <ambientLight intensity={0.06} color="#301040" />
 
-      {/* Stage floor + simple back wall so the space reads as an arena */}
-      <mesh position={[0, -0.5, -4]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[40, 20]} />
+      {/* Main Stage Structure */}
+      <mesh position={[0, -0.5, -15]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[35, 20]} />
         <meshStandardMaterial color="#0a0a0d" metalness={0.6} roughness={0.35} />
       </mesh>
-      <mesh position={[0, 8, -20]}>
-        <planeGeometry args={[60, 30]} />
-        <meshStandardMaterial color="#050506" metalness={0.2} roughness={0.9} />
-      </mesh>
 
-      {/* Arena floor the "crowd" stands on, sloping gently up toward camera */}
-      <mesh position={[0, -0.51, 20]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[70, 60]} />
-        <meshStandardMaterial color="#060608" roughness={1} />
+      {/* Stadium Back Wall / Structure */}
+      <mesh position={[0, 20, -35]}>
+        <planeGeometry args={[120, 60]} />
+        <meshStandardMaterial color="#030304" metalness={0.2} roughness={0.9} />
       </mesh>
 
       <StageLights metricsRef={metricsRef} />
       <LaserRig metricsRef={metricsRef} />
       <LedWall metricsRef={metricsRef} />
+      {/* Stadium Tiered Seating & Crowd */}
       <CrowdParticles metricsRef={metricsRef} count={sceneSettings?.crowdDensity ?? 4000} />
       <FogVolume metricsRef={metricsRef} />
     </>
   );
 }
 
-/** Subtle audio-reactive camera "kick" layered on top of user OrbitControls. */
+/** Audio-reactive camera kick tailored for higher stadium angles */
 function CameraRig({ metricsRef, sceneSettings }) {
   const shakeOffset = useRef(0);
 
@@ -104,7 +90,7 @@ function CameraRig({ metricsRef, sceneSettings }) {
 
     if (sceneSettings?.cameraReactivity !== false) {
       state.camera.position.y += Math.sin(state.clock.elapsedTime * 18) * shakeOffset.current * 0.05;
-      state.camera.fov = 55 - shakeOffset.current * 4;
+      state.camera.fov = 60 - shakeOffset.current * 3;
       state.camera.updateProjectionMatrix();
     }
   });
@@ -114,10 +100,10 @@ function CameraRig({ metricsRef, sceneSettings }) {
       makeDefault
       enableDamping
       dampingFactor={0.08}
-      minDistance={8}
-      maxDistance={60}
-      maxPolarAngle={Math.PI / 2.05}
-      target={[0, 4, -4]}
+      minDistance={15}
+      maxDistance={120}
+      maxPolarAngle={Math.PI / 2.02}
+      target={[0, 4, -10]}
     />
   );
 }
