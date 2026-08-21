@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #020103;
+  --panel: rgba(10, 8, 16, 0.72);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --cyan: #2fd4ff;
+  --magenta: #ff2fd0;
+  --text: #f2f0f8;
+  --text-dim: #9d97ad;
+  --radius: 10px;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+.app {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.app__stage {
+  position: absolute;
+  inset: 0;
+}
+
+.app__stage canvas {
+  display: block;
+}
+
+.app__hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(360px, 92vw);
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  pointer-events: none;
+}
+
+.app__hud > * {
+  pointer-events: auto;
+}
+
+.app__header h1 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.app__header p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.player-controls,
+.sensitivity-panel,
+.export-panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  padding: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.sensitivity-panel h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.player-controls {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 8px 10px;
+}
+
+.file-input {
+  grid-column: 1 / -1;
+  font-size: 0.72rem;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-controls__scrub {
+  width: 100%;
+  accent-color: var(--magenta);
+}
+
+.player-controls__time {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.player-controls__status {
+  grid-column: 1 / -1;
+  font-size: 0.72rem;
+  color: var(--cyan);
+}
+
+.player-controls__status--error {
+  color: #ff5c5c;
+}
+
+.sensitivity-panel__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px 8px;
+  margin-bottom: 10px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.sensitivity-panel__row span:first-child {
+  grid-column: 1 / -1;
+}
+
+.sensitivity-panel__row input[type='range'] {
+  width: 100%;
+  accent-color: var(--cyan);
+}
+
+.sensitivity-panel__value {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--cyan);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn--play {
+  border-color: var(--magenta);
+}
+
+.btn--accent {
+  background: linear-gradient(90deg, rgba(47, 212, 255, 0.15), rgba(255, 47, 208, 0.15));
+  border-color: var(--cyan);
+}
+
+.btn--ghost {
+  background: transparent;
+}
+
+.export-panel__row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.export-panel__progress {
+  margin-top: 12px;
+}
+
+.export-panel__progress-label {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.export-panel__progress-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.export-panel__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  transition: width 0.15s ease;
+}
+
+@media (max-width: 640px) {
+  .app__hud {
+    width: 100vw;
+    background: linear-gradient(180deg, rgba(2, 1, 3, 0.9), rgba(2, 1, 3, 0.6));
+  }
+}
